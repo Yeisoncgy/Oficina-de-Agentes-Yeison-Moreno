@@ -1,0 +1,807 @@
+/*
+ * Panel derecho de la sala (RoomDrawer.tsx). Reusa la carcasa del panel del agente (.hud-drawer, .drawer-*)
+ * y la misma capa `components` que index.css. `--room` es el color propio de la sala (roomIdentity): marca la
+ * identidad (numero, filo de la cabecera, lider). El estado sigue en los colores de estado y el LED.
+ */
+@layer components {
+  .rd-drawer {
+    --room: var(--color-accent);
+  }
+
+  /* ================= Cabecera: numero, nombre y signos vitales ================= */
+  .rd-head {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 12px 14px 16px;
+  }
+
+  /* el tinte de la sala sobre la trama de la cabecera (mas especifico que .scanline) */
+  .rd-head.scanline {
+    background-image:
+      linear-gradient(180deg, color-mix(in srgb, var(--room) 16%, transparent), transparent 70%),
+      var(--texture-scanline);
+    box-shadow:
+      inset 0 4px 0 0 var(--room),
+      inset 0 -2px 0 0 var(--color-border-subtle);
+  }
+
+  .rd-id-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  /* el numero de la sala, el mismo del cartel en 3D y de la lista */
+  .rd-num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--room);
+    background: color-mix(in srgb, var(--room) 16%, var(--color-panel-sunken));
+    box-shadow:
+      inset 0 -4px 0 0 color-mix(in srgb, var(--room) 28%, transparent),
+      0 -2px 0 0 var(--room),
+      0 2px 0 0 var(--room),
+      -2px 0 0 0 var(--room),
+      2px 0 0 0 var(--room),
+      0 4px 0 0 rgb(8 6 24 / 0.45);
+    text-shadow: 2px 2px 0 rgb(8 6 24 / 0.6);
+    animation: rd-stamp 240ms steps(3, end) 140ms both;
+  }
+
+  .rd-drawer .drawer-id {
+    flex: 1;
+  }
+
+  .rd-sub {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .rd-branch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+
+  .rd-close {
+    align-self: flex-start;
+  }
+
+  /* tres datos grandes, sin la ficha larga */
+  .rd-vitals {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 0.9fr;
+    gap: 6px;
+  }
+
+  .rd-vital {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding: 8px 10px;
+    background: var(--color-panel-sunken);
+    box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  }
+
+  .rd-vital dd {
+    margin: 0;
+  }
+
+  .rd-vital-v {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  /* el estado se lee por color: tinte, filo y LED del estado */
+  .rd-vital--state {
+    --st: var(--color-state-idle);
+    background: color-mix(in srgb, var(--st) 12%, var(--color-panel-sunken));
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--st) 35%, transparent),
+      inset 3px 0 0 0 var(--st);
+  }
+
+  .rd-vital--state .rd-vital-v {
+    color: var(--st);
+  }
+
+  .rd-vital--state.is-working {
+    --st: var(--color-state-working);
+  }
+
+  .rd-vital--state.is-inactive,
+  .rd-vital--state.is-closed {
+    --st: var(--color-state-offline);
+  }
+
+  .rd-vital-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: -2px -4px;
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    color: var(--color-state-warning);
+    font: inherit;
+    transition: background-color var(--duration-hover) var(--ease-arrive);
+  }
+
+  .rd-vital-link:hover {
+    background: color-mix(in srgb, var(--color-state-warning) 14%, transparent);
+  }
+
+  .rd-vital-go {
+    color: var(--color-text-muted);
+    transition: transform var(--duration-hover) var(--ease-arrive);
+  }
+
+  .rd-vital-link:hover .rd-vital-go {
+    transform: translateX(2px);
+  }
+
+  /* ================= Cuerpo ================= */
+  .rd-body .drawer-sec:last-child {
+    box-shadow: none;
+  }
+
+  /* ================= Quien esta: una cara por agente ================= */
+  .rd-faces {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+    gap: 4px;
+    margin: 0 -4px;
+  }
+
+  .rd-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 2px 6px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    transition:
+      background-color var(--duration-hover) var(--ease-arrive),
+      opacity var(--duration-hover) linear,
+      transform var(--duration-hover) var(--ease-arrive);
+    /* backwards: al terminar suelta transform y el hover puede subir la cara */
+    animation: rd-face-in 220ms var(--ease-arrive) backwards;
+    animation-delay: calc(200ms + var(--i, 0) * 28ms);
+  }
+
+  .rd-face:hover,
+  .rd-face.is-peeked {
+    background: var(--color-panel-hover);
+  }
+
+  .rd-face:hover {
+    transform: translateY(-2px);
+  }
+
+  .rd-face:active {
+    transform: translateY(1px);
+    transition-duration: var(--duration-press);
+  }
+
+  .rd-face:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .rd-face-pic {
+    position: relative;
+    display: block;
+  }
+
+  /* quien no trabaja ya va atenuado (Portrait dim); quien ya sale, mas todavia */
+  .rd-face.is-idle .rd-face-name {
+    opacity: 0.72;
+  }
+
+  .rd-face.is-done .rd-face-pic,
+  .rd-face.is-done .rd-face-name {
+    opacity: 0.5;
+  }
+
+  .rd-face:hover .rd-face-pic,
+  .rd-face:hover .rd-face-name,
+  .rd-face.is-peeked .rd-face-pic,
+  .rd-face.is-peeked .rd-face-name {
+    opacity: 1;
+  }
+
+  /* el que trabaja: halo en su color, como si estuviera encendido */
+  .rd-face.is-working .portrait {
+    box-shadow:
+      0 -2px 0 0 var(--tile),
+      0 2px 0 0 var(--tile),
+      -2px 0 0 0 var(--tile),
+      2px 0 0 0 var(--tile),
+      0 0 0 4px color-mix(in srgb, var(--color-state-working) 22%, transparent);
+  }
+
+  /* el lider: marco en el color de la sala */
+  .rd-face.is-lead .portrait {
+    box-shadow:
+      0 -2px 0 0 var(--room),
+      0 2px 0 0 var(--room),
+      -2px 0 0 0 var(--room),
+      2px 0 0 0 var(--room),
+      0 0 0 4px color-mix(in srgb, var(--room) 20%, transparent);
+  }
+
+  .rd-face-name {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--face, var(--color-text-secondary));
+  }
+
+  .rd-face-led {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    box-shadow: 0 0 0 2px var(--color-panel);
+  }
+
+  .rd-face-badge {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    font-family: var(--font-display);
+    font-size: 10px;
+    line-height: 1;
+    box-shadow: 0 0 0 2px var(--color-panel);
+  }
+
+  .rd-face-lead {
+    top: -5px;
+    left: -5px;
+    color: var(--color-on-accent);
+    background: var(--room);
+  }
+
+  .rd-face-here {
+    right: -5px;
+    bottom: -5px;
+    color: var(--color-on-accent);
+    background: var(--color-text);
+  }
+
+  .rd-face-alert {
+    bottom: -5px;
+    left: -5px;
+    color: var(--color-on-accent);
+    background: var(--color-state-live);
+  }
+
+  .rd-face-alert.is-warning {
+    background: var(--color-state-warning);
+  }
+
+  .rd-face-alert.is-critical {
+    background: var(--color-state-error);
+  }
+
+  /* una linea: quien trabaja (o la cara bajo el puntero) y que hace */
+  .rd-doing {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    background: var(--color-panel-sunken);
+    box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+  }
+
+  .rd-doing.is-working {
+    box-shadow:
+      inset 0 0 0 1px var(--color-border-subtle),
+      inset 3px 0 0 0 var(--color-state-working);
+  }
+
+  .rd-doing.is-empty {
+    color: var(--color-text-muted);
+  }
+
+  .rd-doing-name {
+    flex: none;
+    font-weight: 700;
+  }
+
+  .rd-doing-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+
+  .rd-doing-clock {
+    flex: none;
+    color: var(--color-state-working);
+  }
+
+  /* ================= Gasto (oculto hasta "Mostrar gasto") ================= */
+  .rd-spend-body:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: expand-in 200ms var(--ease-arrive) both;
+  }
+
+  /* ================= Pie: barra de acciones ================= */
+  .rd-foot {
+    flex: none;
+    padding: 10px 16px 12px;
+    background: var(--color-panel-raised);
+    box-shadow: inset 0 2px 0 0 var(--color-border-subtle);
+  }
+
+  /* en el panel las herramientas van sueltas, sin la linea ni la animacion de la lista */
+  .rd-foot .room-tools {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    animation: none;
+  }
+
+  /* ================= Flujo de la sala (RoomFlow.tsx) ================= */
+  .rf-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .rf-glyph {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    color: var(--room, var(--color-accent));
+    background: color-mix(in srgb, var(--room, var(--color-accent)) 14%, var(--color-panel));
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--room, var(--color-accent)) 50%, transparent);
+  }
+
+  .rf-head-id {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .rf-name {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+
+  .rf-time {
+    flex: none;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  /* una casilla por fase: el avance de un vistazo */
+  .rf-progress {
+    display: flex;
+    gap: 3px;
+    height: 6px;
+  }
+
+  .rf-seg {
+    flex: 1;
+    background: var(--color-border-subtle);
+  }
+
+  .rf-seg.is-done {
+    background: var(--color-state-done);
+  }
+
+  .rf-seg.is-failed {
+    background: var(--color-state-error);
+  }
+
+  .rf-seg.is-running {
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-state-working) 0 4px,
+      color-mix(in srgb, var(--color-state-working) 45%, transparent) 4px 8px
+    );
+    background-size: 16px 100%;
+    animation: rd-march 800ms steps(4, end) infinite;
+  }
+
+  /* que pasa ahora: una frase grande, con el tono del momento */
+  .rf-story {
+    --tone: var(--color-state-live);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 12px 12px 14px;
+    background: color-mix(in srgb, var(--tone) 10%, var(--color-panel-sunken));
+    box-shadow:
+      inset 4px 0 0 0 var(--tone),
+      inset 0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent);
+  }
+
+  .rf-story.is-live {
+    --tone: var(--color-state-working);
+  }
+
+  .rf-story.is-waiting {
+    --tone: var(--color-accent);
+  }
+
+  .rf-story.is-done {
+    --tone: var(--color-state-done);
+  }
+
+  .rf-story.is-failed {
+    --tone: var(--color-state-error);
+  }
+
+  .rf-story.is-stopped {
+    --tone: var(--color-state-warning);
+  }
+
+  .rf-story.is-waiting .rf-story-icon {
+    animation: rd-nudge 1600ms steps(2, jump-none) infinite;
+  }
+
+  .rf-story-icon {
+    flex: none;
+    margin-top: 2px;
+    color: var(--tone);
+  }
+
+  .rf-headline {
+    font-size: 16px;
+    line-height: 22px;
+    color: var(--tone);
+  }
+
+  .rf-detail {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+  }
+
+  /* fases de arriba abajo, unidas por una linea */
+  .rf-steps {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rf-step {
+    --st: var(--color-text-muted);
+    position: relative;
+    display: flex;
+    gap: 10px;
+    padding: 3px 6px 5px;
+    margin: 0 -6px;
+  }
+
+  .rf-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    bottom: -3px;
+    left: 15px;
+    width: 2px;
+    background: var(--color-border-subtle);
+  }
+
+  .rf-step.is-done {
+    --st: var(--color-state-done);
+  }
+
+  .rf-step.is-done::before {
+    background: color-mix(in srgb, var(--color-state-done) 45%, var(--color-border-subtle));
+  }
+
+  .rf-step.is-running {
+    --st: var(--color-state-working);
+  }
+
+  .rf-step.is-failed {
+    --st: var(--color-state-error);
+  }
+
+  /* la fase en curso: franja suave para que el ojo caiga ahi */
+  .rf-step.is-current {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--color-state-working) 10%, transparent), transparent);
+  }
+
+  .rf-mark {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    color: var(--color-scene-ink);
+    background: var(--color-panel);
+    box-shadow: inset 0 0 0 2px var(--st);
+  }
+
+  .rf-step.is-done .rf-mark,
+  .rf-step.is-failed .rf-mark {
+    background: var(--st);
+  }
+
+  .rf-step.is-next .rf-mark {
+    box-shadow: inset 0 0 0 2px var(--room, var(--color-accent));
+  }
+
+  .rf-step-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .rf-step-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+  }
+
+  .rf-step-head:disabled {
+    cursor: default;
+  }
+
+  .rf-step-head:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .rf-step-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rf-step.is-pending .rf-step-title {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .rf-step.is-current .rf-step-title {
+    color: var(--color-state-working);
+  }
+
+  .rf-next {
+    flex: none;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--room, var(--color-accent));
+    background: color-mix(in srgb, var(--room, var(--color-accent)) 12%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--room, var(--color-accent)) 55%, transparent);
+  }
+
+  .rf-count {
+    flex: none;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .rf-chev {
+    flex: none;
+    color: var(--color-text-muted);
+    transition: transform var(--duration-hover) linear;
+  }
+
+  .rf-chev.is-open {
+    transform: rotate(90deg);
+  }
+
+  .rf-agents {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 4px -4px;
+    animation: expand-in 180ms var(--ease-arrive) both;
+  }
+
+  .rf-agent {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 32px;
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    transition: background-color var(--duration-hover) var(--ease-arrive);
+  }
+
+  .rf-agent:hover {
+    background: var(--color-panel-hover);
+  }
+
+  .rf-agent:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .rf-agent-name {
+    flex: none;
+    font-weight: 700;
+  }
+
+  .rf-agent-doing {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+  }
+
+  .rf-agent.is-working .rf-agent-doing {
+    color: var(--color-state-working);
+  }
+
+  .rf-agent.is-failed .rf-agent-doing {
+    color: var(--color-state-error);
+  }
+
+  .rf-more {
+    align-self: flex-start;
+  }
+
+  .rf-others {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 12px;
+    box-shadow: inset 0 2px 0 0 var(--color-border-subtle);
+  }
+
+  .rf-other {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 32px;
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+    transition: background-color var(--duration-hover) var(--ease-arrive);
+  }
+
+  .rf-other:hover {
+    background: var(--color-panel-hover);
+  }
+
+  .rf-other:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .rf-other-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* el numero entra como un sello de tres pasos */
+@keyframes rd-stamp {
+  from {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rd-face-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes rd-march {
+  to {
+    background-position: 16px 0;
+  }
+}
+
+@keyframes rd-nudge {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-num,
+  .rd-face,
+  .rd-spend-body:not([hidden]),
+  .rf-agents {
+    animation: fade-in var(--duration-reduced) linear both !important;
+  }
+
+  .rf-seg.is-running,
+  .rf-story.is-waiting .rf-story-icon {
+    animation: none !important;
+  }
+
+  .rd-face:hover,
+  .rd-face:active,
+  .rd-vital-link:hover .rd-vital-go {
+    transform: none;
+  }
+}

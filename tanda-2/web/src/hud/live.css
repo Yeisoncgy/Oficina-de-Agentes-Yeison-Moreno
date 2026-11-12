@@ -1,0 +1,195 @@
+/*
+ * HUD en vivo: insignia de habitos, mes sobre el presupuesto, alertas rojas (panel del agente; las de la
+ * lista de salas y el riel van en room-list.css), ficha de identidad, tira del flujo y pronostico. Lo importa Hud.tsx despues de index.css
+ * y va en la misma capa `components`, asi las utilidades de Tailwind siguen ganando.
+ * Las alertas son rojas en los dos niveles (contrato: "alerta roja viva"); la critica ademas late.
+ */
+@layer components {
+  /* ================= Barra superior ================= */
+  .lv-habits.is-alert {
+    --frame: var(--color-state-error);
+    color: var(--color-state-error);
+  }
+
+  .lv-habits.is-alert > svg {
+    animation: lv-blink 1200ms steps(2, jump-none) infinite;
+  }
+
+  .lv-habits.is-findings > svg {
+    color: var(--color-state-live);
+  }
+
+  .lv-habits-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--color-on-accent);
+    background: var(--color-state-live);
+    box-shadow: 0 0 0 1px var(--color-frame-outer);
+  }
+
+  .lv-habits.is-alert .lv-habits-count {
+    background: var(--color-state-error);
+  }
+
+  .lv-month-over .label,
+  .lv-month-over .budget-mini-val,
+  .lv-month-over .budget-mini-val b {
+    color: var(--color-state-error);
+  }
+
+  .lv-month-over {
+    background: color-mix(in srgb, var(--color-state-error) 10%, transparent);
+  }
+
+  /* ================= Panel del agente ================= */
+  .lv-alert {
+    --lv-alert: var(--color-state-error);
+    gap: 8px;
+    background: color-mix(in srgb, var(--lv-alert) 10%, transparent);
+    box-shadow:
+      inset 4px 0 0 0 var(--lv-alert),
+      inset 0 -2px 0 0 var(--color-border-subtle);
+  }
+
+  .lv-alert.is-critical {
+    animation:
+      block-in 200ms var(--ease-arrive) both,
+      lv-glow 1600ms steps(2, jump-none) 200ms infinite;
+  }
+
+  .lv-alert-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+
+  .lv-alert-line > svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--lv-alert);
+  }
+
+  .lv-alert-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .lv-alert-level {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lv-alert);
+  }
+
+  .lv-alert-open {
+    align-self: flex-start;
+    margin-left: 26px;
+  }
+
+  .lv-facts dd.lv-door {
+    font-weight: 700;
+    color: var(--color-state-warning);
+  }
+
+  .lv-project {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+
+  .lv-branch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    overflow-wrap: anywhere;
+  }
+
+  .lv-branch > svg {
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  .lv-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--color-text);
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transition: color var(--duration-hover) linear;
+  }
+
+  .lv-link:hover {
+    color: var(--color-accent-hover);
+  }
+
+  /* las alertas de la lista de salas y del riel viven en room-list.css */
+
+  /* ================= Flujos: chip de riesgo del pronostico (la tira y la vista viven en flows/flows.css) ================= */
+  .lv-risk {
+    --risk: var(--color-state-done);
+    padding: 3px 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--risk);
+    background: color-mix(in srgb, var(--risk) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--risk) 55%, transparent);
+  }
+
+  .lv-risk.is-medium {
+    --risk: var(--color-state-warning);
+  }
+
+  .lv-risk.is-high {
+    --risk: var(--color-state-error);
+  }
+
+  @keyframes lv-blink {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes lv-glow {
+    50% {
+      background: color-mix(in srgb, var(--lv-alert) 18%, transparent);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lv-habits.is-alert > svg,
+    .lv-alert.is-critical {
+      animation: none;
+    }
+  }
+}

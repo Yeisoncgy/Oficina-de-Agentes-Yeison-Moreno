@@ -1,0 +1,286 @@
+/*
+ * Bienvenida (nombre del lead), mini tutorial del HUD y primera lectura del historial. Lo importan los
+ * componentes de hud/onboarding despues de index.css, en la misma capa `components`. Sin colores nuevos:
+ * solo los tokens del tema (hud.test.ts exige que coincidan con theme.ts).
+ * Encima de todo: el scrim de los modales va en 40 y .modal-wrap en 41; la bienvenida y la guia, en 60.
+ */
+@layer components {
+  /* ================= Bienvenida y cambio de nombre ================= */
+  .ob-scrim {
+    z-index: 60;
+  }
+
+  .ob-wrap {
+    z-index: 61;
+  }
+
+  .ob-welcome {
+    width: min(460px, 100%);
+    height: auto;
+    max-height: calc(100vh - 2 * var(--m));
+  }
+
+  .ob-welcome-head {
+    align-items: center;
+    gap: 12px;
+    height: 64px;
+  }
+
+  .ob-welcome-head .modal-title {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .ob-welcome-body {
+    gap: 14px;
+  }
+
+  .ob-lead {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    text-wrap: pretty;
+  }
+
+  .ob-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ob-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    background: var(--color-panel-sunken);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.4;
+    box-shadow: var(--frame-well), inset 0 0 0 1px var(--color-border);
+    transition: box-shadow var(--duration-hover) var(--ease-arrive);
+  }
+
+  .ob-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+
+  .ob-input:focus {
+    outline: none;
+    box-shadow: var(--frame-well), inset 0 0 0 2px var(--color-accent);
+  }
+
+  .ob-hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+
+  .ob-error {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-state-error);
+  }
+
+  .ob-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  /* boton "Cambiar mi nombre" junto al nombre del lider, en su panel */
+  .ob-name-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .ob-name-row .drawer-name {
+    min-width: 0;
+  }
+
+  .ob-rename {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ================= Guia ================= */
+  .ob-tour {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: auto;
+  }
+
+  /* sin objetivo: todo oscuro, con el tono y la trama del scrim */
+  .ob-dim {
+    position: absolute;
+    inset: 0;
+    background: rgb(10 9 24 / 0.64) var(--texture-backdrop);
+    animation: fade-in 160ms linear both;
+  }
+
+  /* con objetivo: el recorte es una sombra gigante del mismo tono, con aro ambar */
+  .ob-spot {
+    position: absolute;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 2px var(--color-accent),
+      var(--glow-accent),
+      0 0 0 9999px rgb(10 9 24 / 0.64);
+    transition:
+      left 240ms var(--ease-change),
+      top 240ms var(--ease-change),
+      width 240ms var(--ease-change),
+      height 240ms var(--ease-change);
+    animation: fade-in 160ms linear both;
+  }
+
+  .ob-card {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    outline: none;
+    background: var(--color-panel);
+    box-shadow: var(--frame-window-accent), var(--shadow-4);
+    transition:
+      left 240ms var(--ease-change),
+      top 240ms var(--ease-change);
+    animation: ob-rise 240ms var(--ease-arrive) both;
+  }
+
+  .ob-card-head {
+    height: 36px;
+    padding: 0 12px 0 14px;
+  }
+
+  .ob-card-head .link {
+    margin-left: auto;
+  }
+
+  .ob-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 4px;
+  }
+
+  .ob-card-title {
+    margin: 0;
+    color: var(--color-accent);
+    text-wrap: balance;
+  }
+
+  .ob-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ob-card-body p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    text-wrap: pretty;
+  }
+
+  .ob-keyline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ob-keys {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .ob-keys li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ob-keys .kbd {
+    min-width: 32px;
+  }
+
+  .ob-offer {
+    align-self: flex-start;
+  }
+
+  .ob-card-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px 14px;
+  }
+
+  /* ================= Primera lectura del historial ================= */
+  .ob-reading {
+    gap: 12px;
+  }
+
+  .ob-bar {
+    position: relative;
+    display: block;
+    width: 200px;
+    height: 6px;
+    background: var(--color-panel-sunken);
+    box-shadow: 0 0 0 1px var(--color-border);
+  }
+
+  .ob-bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--color-accent);
+    -webkit-mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 6px);
+    mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 6px);
+    transition: width 300ms var(--ease-change);
+  }
+
+  .ob-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+}
+
+@keyframes ob-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-card,
+  .ob-dim,
+  .ob-spot {
+    animation: fade-in var(--duration-reduced) linear both !important;
+  }
+
+  .ob-card,
+  .ob-spot,
+  .ob-bar-fill {
+    transition: none !important;
+  }
+}
