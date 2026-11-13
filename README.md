@@ -16,6 +16,10 @@
   <a href="#si-algo-falla"><b>Si algo falla</b></a>
 </p>
 
+![La oficina de Colmena de día: una sala por sesión, un escritorio por agente](docs/capturas/oficina-dia.jpg)
+
+<p align="center"><sub>Las capturas son del modo demo: datos de ejemplo.</sub></p>
+
 ## Qué es
 
 - **Una sala por sesión, un escritorio por agente.** Cada sesión de Claude Code abierta es una sala; el líder y
@@ -97,6 +101,10 @@ muestra una guía corta, que se repite con el botón **Guía** dentro de Hábito
 Cada sala es una sesión. Los agentes entran, se sientan directo en su escritorio y trabajan; el líder teclea
 mientras su sesión está activa. La luz sigue la hora real, o la fijas tú desde la barra.
 
+| Día | Noche |
+|:---:|:---:|
+| ![La oficina de día](docs/capturas/oficina-dia.jpg) | ![La oficina de noche](docs/capturas/oficina-noche.jpg) |
+
 Doble clic en una sala la enfoca y abre su panel: cada turno del líder con su costo, las tareas, y los archivos
 que tocó cada agente, con aviso cuando dos editaron el mismo.
 
@@ -105,6 +113,8 @@ que tocó cada agente, con aviso cuando dos editaron el mismo.
 **Agentes ahora** (`L`) responde de un vistazo quién trabaja, en qué, desde cuándo y cuánto lleva. La vista de
 **Árbol** muestra quién lanzó a quién y cuánto cuesta cada rama, con el tamaño del contexto de cada agente, su
 ritmo por minuto y cuánto lleva sin actividad o esperando tu respuesta.
+
+![La tabla Agentes ahora](docs/capturas/agentes-ahora.jpg)
 
 El panel de un agente muestra su contexto actual, lo que cuesta su próxima llamada solo por releerlo y la línea
 de tiempo de sus acciones (hora, duración, fallos y bloqueos).
@@ -145,6 +155,8 @@ puede deshacer durante 5 segundos (o con `Ctrl+Z`). Se guarda en tu base local.
 
 Los mismos datos en vivo, sin la oficina 3D: botón **Vista ligera** en la barra, o `?lite=1` en la dirección.
 Es la opción para una pantalla secundaria o un equipo muy justo.
+
+![La vista ligera](docs/capturas/vista-ligera.jpg)
 
 ### Y además
 
