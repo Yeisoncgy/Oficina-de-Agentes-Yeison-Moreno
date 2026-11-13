@@ -1,0 +1,1286 @@
+/*
+ * Historial: pestanas agrupadas (Gasto, Eficiencia, Reglas) y las pestanas de eficiencia (Habitos,
+ * Reglas, Costos, Comparador, Simulador) mas el plan del presupuesto por dia laboral. Mismo lenguaje que
+ * index.css: tokens de @theme, marcos de 2 px sin radios, cifras en mono. Va en la capa components para
+ * que las utilidades de Tailwind sigan mandando.
+ */
+
+/* mismo orden de capas que Tailwind: si este archivo llegara antes que index.css, no lo cambia */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /*
+   * ================= Kit sobrio del historial =================
+   * Base compartida para las pestanas: menos cajas, menos mayusculas, jerarquia por tamano y espacio.
+   * Cuerpo minimo 12 px; 11 px solo en cabeceras de tabla y chips. Sin marcos de relieve (frame-well).
+   *
+   *  .ui-chip (+ --ok --warn --error --info --muted)  etiqueta corta con tinte suave y borde de 1 px
+   *  .ui-stats > .ui-stat (+ --hero, --ok, --warn, --error)
+   *      .ui-stat-label / .ui-stat-value / .ui-stat-sub   cifras en fila, sin cajas
+   *  .ui-section > .ui-section-head > .ui-section-title (+ acciones)   bloque separado por aire
+   *  details.ui-disclosure > summary                  plegable sin caja, chevron que gira
+   *  .ui-rows > .ui-row (+ --head)                    filas de tabla con divisor de 1 px
+   *  .ui-muted / .ui-hint                             texto secundario / ayuda de una linea
+   */
+
+  /* ---- chip: las 5 chips viejas comparten el aspecto sin tocar su markup ---- */
+  .ui-chip,
+  .rule-source {
+    --chip: var(--color-text-muted);
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    height: 20px;
+    padding: 0 7px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    color: var(--chip);
+    background: color-mix(in srgb, var(--chip) 10%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--chip) 30%, transparent);
+  }
+
+  .ui-chip--ok {
+    --chip: var(--color-state-done);
+  }
+
+  .ui-chip--warn {
+    --chip: var(--color-state-warning);
+  }
+
+  .ui-chip--error {
+    --chip: var(--color-state-error);
+  }
+
+  .ui-chip--info {
+    --chip: var(--color-state-live);
+  }
+
+  .ui-chip--muted {
+    --chip: var(--color-text-muted);
+  }
+
+  /* ---- cifras en fila, sin cajas: el espacio separa ---- */
+  .ui-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px 40px;
+  }
+
+  .ui-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .ui-stat-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .ui-stat-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    color: var(--color-text);
+  }
+
+  .ui-stat-sub {
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .ui-stat--hero .ui-stat-value {
+    font-size: 32px;
+    letter-spacing: -0.02em;
+  }
+
+  .ui-stat--ok .ui-stat-value {
+    color: var(--color-state-done);
+  }
+
+  .ui-stat--warn .ui-stat-value {
+    color: var(--color-state-warning);
+  }
+
+  .ui-stat--error .ui-stat-value {
+    color: var(--color-state-error);
+  }
+
+  /* ---- seccion: titulo sencillo y aire en vez de caja ---- */
+  .ui-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .ui-section + .ui-section {
+    margin-top: 24px;
+  }
+
+  /* .modal-body ya separa sus hijos 20 px: completa los 24 */
+  .modal-body > .ui-section + .ui-section {
+    margin-top: 4px;
+  }
+
+  .ui-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+
+  .ui-section-title {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-text);
+  }
+
+  /* ---- plegable: summary con chevron, sin caja ---- */
+  .ui-disclosure > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    list-style: none;
+    cursor: pointer;
+    transition: color var(--duration-hover) linear;
+  }
+
+  .ui-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .ui-disclosure > summary::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--duration-hover) var(--ease-change);
+  }
+
+  .ui-disclosure[open] > summary::before {
+    transform: rotate(45deg);
+  }
+
+  .ui-disclosure > summary:hover,
+  .ui-disclosure[open] > summary {
+    color: var(--color-text);
+  }
+
+  .ui-disclosure > summary:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .ui-disclosure[open] > summary {
+    margin-bottom: 12px;
+  }
+
+  /* ---- filas de tabla: las columnas las pone cada tabla (grid-template-columns) ---- */
+  .ui-rows {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ui-row {
+    display: grid;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    box-shadow: inset 0 -1px 0 0 var(--color-border-subtle);
+    transition: background-color var(--duration-hover) var(--ease-arrive);
+  }
+
+  .ui-row:not(.ui-row--head):hover {
+    background: color-mix(in srgb, var(--color-panel-hover) 40%, transparent);
+  }
+
+  .ui-row--head {
+    min-height: 28px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+  }
+
+  /* ---- texto de apoyo ---- */
+  .ui-muted {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .ui-hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+
+  /* ================= Grupos y pestanas del historial ================= */
+  .history-group {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* subpestanas en letra de cuerpo: la fila de grupos arriba ya lleva la identidad pixel */
+  .subtabs {
+    display: flex;
+    flex: none;
+    gap: 4px;
+    padding: 4px 16px 0;
+    overflow-x: auto;
+    box-shadow: inset 0 -1px 0 0 var(--color-border-subtle);
+  }
+
+  .subtab {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 8px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    box-shadow: inset 0 -2px 0 0 transparent;
+    transition:
+      color var(--duration-hover) linear,
+      box-shadow var(--duration-hover) var(--ease-arrive);
+  }
+
+  .subtab svg {
+    color: var(--color-text-muted);
+    transition: color var(--duration-hover) linear;
+  }
+
+  .subtab:hover {
+    color: var(--color-text);
+  }
+
+  .subtab[aria-selected='true'] {
+    color: var(--color-text);
+    box-shadow: inset 0 -2px 0 0 var(--color-accent);
+  }
+
+  .subtab[aria-selected='true'] svg {
+    color: var(--color-text-secondary);
+  }
+
+  /* el anillo queda dentro de la pestana (la fila recorta lo que sale) y sin tocar el subrayado */
+  .subtab:focus-visible {
+    outline-offset: -4px;
+  }
+
+  /* ================= Comunes ================= */
+  .ins-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+  }
+
+  .ins-input {
+    height: 28px;
+    padding: 0 8px;
+    border: 2px solid var(--color-border);
+    background: var(--color-panel-sunken);
+    color: var(--color-text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color var(--duration-hover) linear;
+  }
+
+  .ins-input:focus {
+    border-color: var(--color-accent);
+  }
+
+  .ins-input:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .ins-input[aria-invalid='true'] {
+    border-color: var(--color-state-error);
+  }
+
+  select.ins-input {
+    padding-right: 4px;
+  }
+
+  .ins-input option {
+    background: var(--color-panel);
+    color: var(--color-text);
+  }
+
+  /* ================= Habitos ================= */
+  /* la bandeja crece hacia abajo al copiar: el selector de periodo queda quieto arriba */
+  .habit-top {
+    align-items: flex-start;
+  }
+
+  .habit-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .habit-kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* filtro: chip del kit como boton; el activo toma el acento */
+  .habit-kind {
+    height: 24px;
+    border: 0;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color var(--duration-hover) linear,
+      background-color var(--duration-hover) var(--ease-arrive),
+      box-shadow var(--duration-hover) var(--ease-arrive);
+  }
+
+  .habit-kind:hover {
+    --chip: var(--color-text-secondary);
+  }
+
+  .habit-kind[aria-pressed='true'] {
+    --chip: var(--color-accent);
+  }
+
+  .habit-kind:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .habit-kind-count {
+    font-weight: 700;
+  }
+
+  .habit-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .habit-list {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* fila plana: la severidad es solo el LED (la palabra va para lectores de pantalla y en el title) */
+  .habit {
+    box-shadow: inset 0 -1px 0 0 var(--color-border-subtle);
+  }
+
+  .habit-row {
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 8px 10px 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--duration-hover) var(--ease-arrive);
+  }
+
+  .habit-row:hover,
+  .habit-row[aria-expanded='true'] {
+    background: color-mix(in srgb, var(--color-panel-hover) 40%, transparent);
+  }
+
+  .habit-row:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .habit-sev {
+    display: inline-flex;
+    margin-top: 6px;
+  }
+
+  .habit-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .habit-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--color-text);
+  }
+
+  .habit-meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .habit-live {
+    color: var(--color-state-working);
+  }
+
+  .habit-save {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--color-text);
+  }
+
+  /* se alinea con el titulo: 4 de padding + 8 del LED + 12 de hueco */
+  .habit-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2px 8px 14px 24px;
+  }
+
+  .habit-evidence {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* aspecto en el kit (.ui-chip); aqui solo lo propio: la cifra resalta sobre la etiqueta */
+  .ev-chip {
+    font-weight: 400;
+  }
+
+  .ev-chip b {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .habit-rec {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  .habit-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .habit-copy-manual {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .habit-copy-manual code {
+    display: block;
+    margin-top: 6px;
+    padding: 8px 10px;
+    white-space: pre-wrap;
+    color: var(--color-text);
+    background: var(--color-panel);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    user-select: all;
+  }
+
+  .btn.is-copied {
+    --frame: var(--color-state-done);
+    color: var(--color-state-done);
+  }
+
+  /* ---- Bandeja (solo En vivo): a la derecha de la cabecera, sin caja; lo que pasa al copiar va debajo ---- */
+  .inbox {
+    display: flex;
+    flex: 1 1 280px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .inbox:focus {
+    outline: none;
+  }
+
+  .inbox:focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .inbox-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 12px;
+  }
+
+  .inbox-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px 12px;
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .habit-top > .inbox-error {
+    flex: 1 1 280px;
+    text-align: right;
+  }
+
+  /* solo cuando el navegador no deja copiar: el texto a lo ancho, para seleccionarlo */
+  .inbox-manual {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    align-items: flex-start;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .inbox-manual p {
+    width: 100%;
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .inbox-manual code {
+    display: block;
+    max-height: 240px;
+    margin: 6px 0 0;
+    padding: 8px 10px;
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--color-text);
+    background: var(--color-panel);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+    user-select: all;
+  }
+
+  .inbox-error {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-state-error);
+  }
+
+  /* ================= Reglas ================= */
+  .notify {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 12px 14px;
+    background: var(--color-panel-raised);
+    box-shadow: inset 0 0 0 1px var(--color-border);
+  }
+
+  .notify > svg {
+    color: var(--color-accent);
+  }
+
+  .notify-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .notify-title {
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .notify-problem {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+
+  .rule-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rule {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 14px 0;
+    box-shadow: inset 0 -1px 0 0 var(--color-border-subtle);
+  }
+
+  .rule.is-off .rule-main {
+    opacity: 0.6;
+  }
+
+  .rule-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .rule-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .rule-hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .rule-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  .rule-source {
+    --src: var(--color-state-live);
+    --chip: var(--src);
+  }
+
+  .rule-source.is-floor {
+    --src: var(--color-text-muted);
+  }
+
+  .rule-source.is-custom {
+    --src: var(--color-accent);
+  }
+
+  .rule-source.is-budget {
+    --src: var(--color-state-warning);
+  }
+
+  .rule-edit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .rule-unit {
+    color: var(--color-text-muted);
+  }
+
+  .rule-input {
+    width: 96px;
+    text-align: right;
+  }
+
+  .rule-error {
+    grid-column: 2 / -1;
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-state-error);
+  }
+
+  @media (max-width: 767px) {
+    .rule {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rule-edit {
+      justify-content: flex-start;
+    }
+
+    .rule-error {
+      grid-column: 1;
+    }
+  }
+
+  /* interruptor: pista de 32 x 16 con perilla cuadrada; el texto dice el estado */
+  .switch {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .switch-track {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 32px;
+    height: 16px;
+    background: var(--color-panel-sunken);
+    box-shadow: inset 0 0 0 2px var(--color-border-strong);
+    transition:
+      background-color var(--duration-hover) var(--ease-arrive),
+      box-shadow var(--duration-hover) var(--ease-arrive);
+  }
+
+  .switch-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-text-muted);
+    transition:
+      transform 160ms var(--ease-change),
+      background-color var(--duration-hover) linear;
+  }
+
+  .switch:hover:not(:disabled):not([aria-checked='true']) .switch-track {
+    box-shadow: inset 0 0 0 2px var(--color-text-muted);
+  }
+
+  .switch[aria-checked='true'] {
+    color: var(--color-state-done);
+  }
+
+  .switch[aria-checked='true'] .switch-track {
+    background: color-mix(in srgb, var(--color-state-done) 22%, var(--color-panel-sunken));
+    box-shadow: inset 0 0 0 2px var(--color-state-done);
+  }
+
+  .switch[aria-checked='true'] .switch-knob {
+    transform: translateX(16px);
+    background: var(--color-state-done);
+  }
+
+  .switch:disabled {
+    opacity: 0.5;
+  }
+
+  .switch:focus-visible {
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .switch-knob {
+      transition: none;
+    }
+  }
+
+  /* ================= Costos ================= */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 40px;
+  }
+
+  .cost-grid > .ui-section + .ui-section {
+    margin-top: 0;
+  }
+
+  .cost-wide {
+    grid-column: 1 / -1;
+  }
+
+  /* montos sin precio: la palabra en lugar de $0,00, y un asterisco si parte del monto quedo fuera */
+  .unpriced {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .fig-value .unpriced,
+  .ui-stat-value .unpriced {
+    font-size: 0.6em;
+  }
+
+  .cost-unpriced {
+    color: var(--color-state-warning);
+  }
+
+  .cost-row .cell-num--unpriced,
+  .cmp-row .cell-num--unpriced {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .unpriced-mark {
+    margin-left: 1px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+    cursor: help;
+  }
+
+  /* costos: el aspecto de fila lo da .ui-row; aqui solo las columnas */
+  .cost-row {
+    grid-template-columns: minmax(0, 1fr) minmax(40px, 100px) 84px 72px;
+  }
+
+  .cost-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--color-text);
+  }
+
+  .cost-name.is-mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .cost-name-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cost-dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+  }
+
+  .discard-row {
+    grid-template-columns: 150px 110px minmax(0, 1fr) 110px 72px;
+  }
+
+  @media (max-width: 900px) {
+    .cost-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .discard-row {
+      grid-template-columns: 130px 100px minmax(0, 1fr) 72px;
+    }
+
+    .discard-row > :nth-child(4) {
+      display: none;
+    }
+  }
+
+  /* ================= Comparador ================= */
+  /* seis columnas que caben sin desplazamiento; el resto de las metricas va en el title de la fila */
+  .cmp-row {
+    grid-template-columns: minmax(0, 1.8fr) repeat(5, minmax(56px, 1fr));
+  }
+
+  .cmp-config {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  .cmp-skill {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 40px;
+  }
+
+  .cmp-skill-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .cmp-flows {
+    margin: 24px 0 0;
+  }
+
+  /* ================= Simulador ================= */
+  .sim {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+    align-items: start;
+    gap: 20px 40px;
+  }
+
+  .sim-scenario {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .sim-line {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 64px minmax(96px, auto) 28px;
+    gap: 10px;
+  }
+
+  .sim-line .ins-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sim-line-cost {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  .sim-line-cost.is-missing {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .sim-result {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .sim-result .ui-stat-value {
+    overflow-wrap: anywhere;
+  }
+
+  .sim-verdict {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .sim-verdict.is-ok {
+    color: var(--color-state-done);
+  }
+
+  .sim-verdict.is-warn {
+    color: var(--color-state-warning);
+  }
+
+  .sim-verdict.is-error {
+    color: var(--color-state-error);
+  }
+
+  .base-row {
+    grid-template-columns: minmax(0, 1fr) 96px 72px 72px 72px 72px;
+  }
+
+  .base-missing {
+    grid-column: span 3;
+  }
+
+  @media (max-width: 900px) {
+    .sim {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .cmp-skill {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .sim-line {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px;
+      padding: 6px 0;
+    }
+
+    .sim-line.ui-row--head {
+      display: none;
+    }
+  }
+
+  /* ================= Presupuesto ================= */
+  .budget-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* gastado a la izquierda y el ajuste al gasto real a la derecha, a la altura de la cifra */
+  .budget-hero-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  .real-spend {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .real-spend-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .real-spend-open {
+    color: var(--color-text);
+  }
+
+  .real-spend-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .real-spend-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-text-secondary);
+  }
+
+  .real-spend-field .ins-input {
+    width: 112px;
+    text-align: right;
+  }
+
+  .real-spend-set {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .real-spend-set b {
+    color: var(--color-text);
+  }
+
+  .real-spend .inline-error {
+    margin: 0;
+  }
+
+  .budget-of {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-text-muted);
+  }
+
+  .budget-status {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .budget-status.is-warn {
+    color: var(--color-state-warning);
+  }
+
+  .budget-status.is-over {
+    color: var(--color-state-error);
+  }
+
+  .ui-stat-sub.is-warn {
+    color: var(--color-state-warning);
+  }
+
+  .chart-focus {
+    margin-left: 12px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+  }
+
+  .chart-x .is-off:not(.is-today) {
+    opacity: 0.45;
+  }
+
+  .budget-plan {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 300px);
+    align-items: start;
+    gap: 24px 40px;
+  }
+
+  .plan-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .plan-block .inline-error,
+  .cal .inline-error {
+    margin: 0;
+  }
+
+  .cal {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cal-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .cal-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cal-row {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+  .cal-wd {
+    display: grid;
+    place-items: center;
+    height: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+
+  .cal-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text);
+    background: var(--color-panel-raised);
+    box-shadow: inset 0 0 0 1px var(--color-border-subtle);
+    transition:
+      background-color var(--duration-hover) var(--ease-arrive),
+      box-shadow var(--duration-hover) var(--ease-arrive);
+  }
+
+  button.cal-day:hover {
+    background: var(--color-panel-hover);
+    box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  }
+
+  .cal-day.is-blank,
+  .cal-day.is-weekend {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .cal-day.is-weekend {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+
+  /* dia libre: tachado y en ambar (no cuenta como laboral) */
+  .cal-day.is-off,
+  button.cal-day.is-off:hover {
+    color: var(--color-accent);
+    text-decoration: line-through;
+    background: color-mix(in srgb, var(--color-accent) 18%, var(--color-panel));
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+
+  .cal-day.is-today::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    bottom: 4px;
+    left: 8px;
+    height: 2px;
+    background: var(--color-state-working);
+  }
+
+  .cal-day:focus-visible {
+    z-index: 1;
+    outline-offset: 1px;
+  }
+
+  .cal-day[aria-busy='true'] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  @media (max-width: 767px) {
+    .budget-plan {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

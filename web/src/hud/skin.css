@@ -1,0 +1,435 @@
+/*
+ * Piel "Loft cinematografico" del HUD. Va sin @layer a proposito: asi manda sobre las reglas en capas del
+ * resto de hojas sin tener que reescribirlas una por una. Cambia el lenguaje visual completo y deja intactos
+ * la distribucion, las medidas y el comportamiento, que siguen saliendo de index.css y de cada panel.
+ *
+ * Antes: marcos de pixel de 2 px, tipografia de pixel, tramas y esquinas vivas.
+ * Ahora: vidrio ahumado sobre la escena, filo de luz de 1 px, esquinas redondeadas, sombras blandas y Sora
+ * para titulos y botones. El color sale de los mismos tokens (theme.ts / index.css), que ahora son tinta
+ * neutra, blanco calido y mostaza, a juego con la oficina.
+ */
+
+:root {
+  --radius-panel: 14px;
+  --radius-card: 10px;
+  --radius-ctl: 8px;
+  --radius-chip: 6px;
+
+  /* "vidrio" sin desenfoque: difuminar lo que hay detras obliga al navegador a rehacer el efecto en cada
+     cuadro de la escena 3D, y en un equipo sin tarjeta dedicada es lo que mas pesa de toda la interfaz. Se
+     consigue el mismo aspecto con un fondo casi opaco y un brillo fino arriba. */
+  --glass: linear-gradient(180deg, rgb(24 27 36 / 0.95) 0%, rgb(15 17 23 / 0.95) 100%);
+  --glass-strong: linear-gradient(180deg, rgb(23 26 34 / 0.985) 0%, rgb(14 16 22 / 0.985) 100%);
+
+  /* marcos: un filo de luz en vez del doble marco de pixel */
+  --frame-window: 0 0 0 1px rgb(255 255 255 / 0.1), inset 0 1px 0 0 rgb(255 255 255 / 0.07);
+  --frame-window-accent: 0 0 0 1px rgb(232 176 74 / 0.6), inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+    0 0 46px -12px rgb(232 176 74 / 0.3);
+  --frame-control: 0 0 0 1px rgb(0 0 0 / 0.4);
+  --frame-well: inset 0 1px 3px 0 rgb(0 0 0 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.04);
+
+  --shadow-1: 0 2px 6px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 14px 34px -12px rgb(0 0 0 / 0.7);
+  --shadow-3: 0 24px 54px -16px rgb(0 0 0 / 0.78);
+  --shadow-4: 0 40px 90px -20px rgb(0 0 0 / 0.85);
+  --glow-accent: 0 0 20px rgb(232 176 74 / 0.3);
+  --glow-working: 0 0 12px rgb(111 240 228 / 0.35);
+
+  /* fuera las tramas de pixel */
+  --texture-dither: none;
+  --texture-scanline: none;
+  --texture-backdrop: none;
+
+  --focus-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- tipografia */
+
+.display,
+.btn,
+[class*='display'] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: 0.12em;
+  text-shadow: none;
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+/* ---------------------------------------------------------------- superficies */
+
+.win,
+.hud-drawer,
+.fx-dockbar,
+.center-card,
+.hint {
+  background: var(--glass);
+  border-radius: var(--radius-panel);
+}
+
+.modal,
+.ob-card,
+.fx-sheet {
+  background: var(--glass-strong);
+  border-radius: 18px;
+}
+
+.hud-drawer {
+  background: linear-gradient(180deg, rgb(22 25 33 / 0.97) 0%, rgb(14 16 22 / 0.97) 100%);
+}
+
+/* el contenido respeta la esquina redondeada del panel */
+.win,
+.hud-drawer,
+.modal,
+.ob-card,
+.fx-sheet,
+.fx-dockbar,
+.hud-rooms {
+  overflow: clip;
+}
+
+.hud-rooms {
+  border-radius: var(--radius-panel);
+}
+
+.win-head,
+.win-head.scanline,
+.scanline {
+  background-color: rgb(255 255 255 / 0.035);
+  background-image: none;
+}
+
+.win-head {
+  box-shadow: inset 0 -1px 0 0 rgb(255 255 255 / 0.07);
+}
+
+.well {
+  background: rgb(0 0 0 / 0.28);
+  border-radius: var(--radius-card);
+}
+
+.scrim,
+.ob-dim {
+  background: radial-gradient(ellipse at 50% 45%, rgb(8 9 13 / 0.62) 0, rgb(4 5 8 / 0.86) 100%);
+}
+
+/* separadores de la barra: una linea fina en vez del corte de 2 px */
+.bar-seg + .bar-seg {
+  box-shadow: inset 1px 0 0 0 rgb(255 255 255 / 0.08);
+}
+
+/* ---------------------------------------------------------------- controles */
+
+.btn {
+  --frame: rgb(255 255 255 / 0.14);
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-ctl);
+  background: rgb(255 255 255 / 0.06);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 0 1px var(--frame), inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+}
+
+.btn:hover:not(:disabled) {
+  --frame: rgb(255 255 255 / 0.3);
+  background: rgb(255 255 255 / 0.11);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--frame), inset 0 1px 0 0 rgb(255 255 255 / 0.08), 0 8px 18px -8px rgb(0 0 0 / 0.7);
+}
+
+.btn:active:not(:disabled) {
+  --frame: var(--color-accent);
+  background: rgb(0 0 0 / 0.3);
+  transform: translateY(0);
+  box-shadow: 0 0 0 1px var(--frame);
+}
+
+.btn:disabled {
+  --frame: rgb(255 255 255 / 0.07);
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--frame);
+}
+
+.btn[aria-expanded='true'] {
+  --frame: var(--color-accent);
+  background: rgb(232 176 74 / 0.12);
+  box-shadow: 0 0 0 1px var(--frame), 0 0 22px -6px rgb(232 176 74 / 0.5);
+}
+
+.btn--primary,
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f5c56b 0%, #e8b04a 100%);
+  color: var(--color-on-accent);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.45), 0 0 0 1px rgb(0 0 0 / 0.35), 0 8px 20px -8px rgb(232 176 74 / 0.55);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #fad084 0%, #f0bb58 100%);
+}
+
+.btn--primary:active:not(:disabled) {
+  background: var(--color-accent-pressed);
+  box-shadow: inset 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 0 0 1px rgb(0 0 0 / 0.35);
+}
+
+.btn--sm {
+  height: 26px;
+  padding: 0 10px;
+}
+
+.icon-btn {
+  border-radius: var(--radius-ctl);
+}
+
+.icon-btn:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.1);
+  transform: none;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.icon-btn:active:not(:disabled) {
+  background: rgb(0 0 0 / 0.3);
+  transform: none;
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.kbd {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: rgb(255 255 255 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  color: var(--color-text-secondary);
+}
+
+.link {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* control de la hora: cuatro opciones en una pastilla, la elegida en mostaza */
+.time-seg {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: rgb(0 0 0 / 0.3);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.time-opt {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition:
+    background-color var(--duration-hover) var(--ease-arrive),
+    color var(--duration-hover) linear;
+}
+
+.time-opt:hover {
+  color: var(--color-text);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.time-opt[aria-pressed='true'] {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+.time-opt:focus-visible {
+  outline-offset: 1px;
+}
+
+/* calidad: mismo lenguaje que la hora, con el nivel escrito */
+.quality-opt {
+  display: flex;
+  gap: 6px;
+  width: auto;
+  padding: 0 8px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.time-seg + .time-seg {
+  margin-left: 6px;
+}
+
+/* marca: la celda con ojos y el nombre en Sora */
+.brand-corner {
+  gap: 10px;
+  padding: 6px 16px 6px 8px;
+  border-radius: 999px;
+  /* pastilla de vidrio: el nombre se lee igual sobre el cielo de noche que sobre el del atardecer */
+  background: rgb(17 19 26 / 0.86);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 12px 26px -14px rgb(0 0 0 / 0.7);
+  text-shadow: none;
+}
+
+.brand-logo::before {
+  inset: -8px;
+  background: radial-gradient(circle at 50% 55%, rgb(232 176 74 / 0.22), rgb(232 176 74 / 0) 66%);
+}
+
+.brand-logo > svg {
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.5));
+}
+
+.brand-name {
+  font-size: 15px;
+  line-height: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #f3eee4;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.brand-credit {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+/* la celda parpadea de vez en cuando */
+.logo-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-blink 6.5s ease-in-out infinite;
+}
+
+@keyframes logo-blink {
+  0%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-eyes {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- detalles */
+
+/* el LED ya no es un pixel cuadrado: un punto de luz (y su anillo de "en vivo", un circulo) */
+.led,
+.led--ring::after {
+  border-radius: 50%;
+}
+
+/* estado de la conexion: misma letra que las demas etiquetas de la barra */
+.conn {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.led:not(.led--hollow) {
+  box-shadow: 0 0 8px 0 color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.led--hollow {
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+/* retratos: el muneco de vinilo sobre una ficha redonda con el color del agente */
+.portrait {
+  border-radius: 10px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--tile, #4a5166) 26%, #171a22);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--tile, #4a5166) 80%, transparent);
+}
+
+.panel-state-icon {
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.here-mark {
+  border-radius: var(--radius-chip);
+}
+
+.skel {
+  border-radius: 4px;
+}
+
+/* barra de desplazamiento fina y redonda */
+* {
+  scrollbar-color: rgb(255 255 255 / 0.22) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.2);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 0.34);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .win,
+  .hud-drawer,
+  .fx-dockbar,
+  .center-card,
+  .hint,
+  .modal,
+  .ob-card,
+  .fx-sheet {
+    background: var(--color-panel);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* boton principal deshabilitado: se lee el texto, sin el relleno */
+.btn--primary:disabled {
+  color: var(--color-text-muted);
+}
+

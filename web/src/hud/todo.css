@@ -1,0 +1,773 @@
+/*
+ * Pendientes (P). Hoja propia del modal: todo cuelga de `.modal.todo-modal` para ganarle a las reglas
+ * genericas de polish.css (el radio de 8 px a todo lo que tenga clase dentro de un panel) sin tocarlas.
+ * Mismo lenguaje que el resto de la piel: vidrio oscuro, filo de 1 px, acento mostaza, Sora en rotulos.
+ * Movimiento: solo transform y opacity (y color en el tachado), 120-220 ms, curva de salida.
+ */
+
+.modal.todo-modal {
+  position: relative;
+  width: min(640px, 100%);
+  height: min(700px, calc(100vh - 80px));
+}
+
+/* ---------------------------------------------------------------- cabecera */
+
+.modal.todo-modal .todo-head {
+  position: relative;
+}
+
+.modal.todo-modal .todo-headline {
+  font-variant-numeric: tabular-nums;
+}
+
+/* avance del dia: un filo de 2 px en el borde de abajo de la cabecera */
+.modal.todo-modal .todo-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 0;
+  background: rgb(255 255 255 / 0.06);
+}
+
+.modal.todo-modal .todo-progress > span {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, #e8b04a, #f5c56b);
+  transform-origin: left center;
+  transition: transform 220ms var(--ease-arrive);
+}
+
+/* ---------------------------------------------------------------- alta y pestanas */
+
+.modal.todo-modal .todo-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-top {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 24px 14px;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-add {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal.todo-modal .todo-add-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-radius: 10px;
+}
+
+.modal.todo-modal .todo-add-icon {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: color 120ms linear;
+}
+
+.modal.todo-modal .todo-add-field:focus-within .todo-add-icon {
+  color: var(--color-accent);
+}
+
+.modal.todo-modal .todo-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.3);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: box-shadow 120ms var(--ease-arrive);
+}
+
+.modal.todo-modal .todo-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.modal.todo-modal .todo-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--color-accent), 0 0 0 4px rgb(232 176 74 / 0.16);
+}
+
+.modal.todo-modal .todo-add-btn {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 10px;
+}
+
+/* dos pestanas del mismo ancho; la ficha de fondo se desliza (transform) a la elegida */
+.modal.todo-modal .todo-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 300px;
+  max-width: 100%;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.3);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.modal.todo-modal .todo-tabs-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1), 0 2px 6px rgb(0 0 0 / 0.35);
+  transition: transform 200ms var(--ease-arrive);
+}
+
+.modal.todo-modal .todo-tabs[data-tab='done'] .todo-tabs-thumb {
+  transform: translateX(100%);
+}
+
+.modal.todo-modal .todo-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  transition: color 120ms linear;
+}
+
+.modal.todo-modal .todo-tab:hover {
+  color: var(--color-text-secondary);
+}
+
+.modal.todo-modal .todo-tab[aria-selected='true'] {
+  color: var(--color-text);
+}
+
+.modal.todo-modal .todo-tab:focus-visible {
+  outline-offset: 1px;
+}
+
+.modal.todo-modal .todo-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.07);
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+
+.modal.todo-modal .todo-tab[aria-selected='true'] .todo-count {
+  background: rgb(232 176 74 / 0.16);
+  color: var(--color-accent);
+}
+
+/* ---------------------------------------------------------------- lista */
+
+.modal.todo-modal .todo-stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-body {
+  gap: 0;
+  padding: 4px 24px 24px;
+  border-radius: 0;
+  animation: todo-panel-in 180ms var(--ease-arrive) both;
+}
+
+/* con un aviso abajo, lo ultimo de la lista no queda tapado */
+.modal.todo-modal .todo-stage.has-toast .todo-body {
+  padding-bottom: 76px;
+}
+
+.modal.todo-modal .todo-flip {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-flip > .panel-state {
+  margin-block: auto;
+}
+
+.modal.todo-modal .todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 12px;
+  min-height: 44px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.035);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  transition:
+    background-color 120ms linear,
+    box-shadow 120ms var(--ease-arrive);
+}
+
+.modal.todo-modal .todo-row:hover {
+  background: rgb(255 255 255 / 0.055);
+}
+
+.modal.todo-modal .todo-row.is-done {
+  background: rgb(255 255 255 / 0.02);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.045);
+}
+
+.modal.todo-modal .todo-row.is-editing {
+  background: rgb(0 0 0 / 0.25);
+  box-shadow: inset 0 0 0 1px var(--color-accent), 0 0 0 4px rgb(232 176 74 / 0.14);
+}
+
+/* casilla: 22 px a la vista, 34 px para el dedo y el cursor */
+.modal.todo-modal .todo-check {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: transparent;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.28);
+  transition:
+    background-color 140ms var(--ease-arrive),
+    box-shadow 140ms var(--ease-arrive),
+    color 120ms linear;
+}
+
+.modal.todo-modal .todo-check::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.modal.todo-modal .todo-check:hover {
+  color: rgb(232 176 74 / 0.6);
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+}
+
+.modal.todo-modal .todo-check:focus-visible {
+  outline-offset: 2px;
+}
+
+.modal.todo-modal .todo-check[aria-checked='true'] {
+  background: rgb(232 176 74 / 0.16);
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1.5px rgb(232 176 74 / 0.5);
+}
+
+/* el momento de marcar: la casilla se llena de mostaza y la palomita aparece */
+.modal.todo-modal .todo-row[data-leave='complete'] .todo-check {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+}
+
+.modal.todo-modal .todo-row[data-leave='complete'] .todo-check-mark {
+  animation: todo-check-pop 200ms var(--ease-arrive) both;
+}
+
+.modal.todo-modal .todo-text {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-decoration-line: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  transition:
+    color 160ms linear,
+    text-decoration-color 160ms linear;
+}
+
+.modal.todo-modal .todo-row.is-done .todo-text {
+  color: var(--color-text-muted);
+  text-decoration-color: rgb(255 255 255 / 0.4);
+}
+
+.modal.todo-modal .todo-editor {
+  display: block;
+  width: 100%;
+  min-height: 22px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 22px;
+  resize: none;
+  box-shadow: none;
+}
+
+.modal.todo-modal .todo-editor:focus {
+  outline: none;
+}
+
+.modal.todo-modal .todo-edit-hint {
+  align-self: start;
+  border-radius: 0;
+  color: var(--color-text-muted);
+  font-size: 11.5px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+/* fecha y acciones comparten la misma celda: al pasar el cursor la fecha cede su lugar, sin mover nada */
+.modal.todo-modal .todo-trail {
+  display: grid;
+  align-items: center;
+  justify-items: end;
+  min-width: 64px;
+  height: 22px;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-trail > * {
+  grid-area: 1 / 1;
+}
+
+/* la fecha no recibe el cursor: al desvanecerse (opacity < 1) pinta por encima y se tragaria el clic */
+.modal.todo-modal .todo-meta {
+  border-radius: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 120ms linear;
+}
+
+.modal.todo-modal .todo-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 2px;
+  margin: -3px -4px -3px 0;
+  border-radius: 0;
+  transition: opacity 120ms linear;
+}
+
+@media (hover: hover) {
+  .modal.todo-modal .todo-actions {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .modal.todo-modal .todo-row:hover .todo-actions,
+  .modal.todo-modal .todo-actions:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal.todo-modal .todo-row:hover .todo-meta,
+  .modal.todo-modal .todo-row:has(.todo-actions:focus-within) .todo-meta {
+    opacity: 0;
+  }
+}
+
+/* sin cursor (tactil): fecha y acciones lado a lado */
+@media (hover: none) {
+  .modal.todo-modal .todo-trail {
+    display: flex;
+    gap: 6px;
+  }
+}
+
+/* entradas y salidas de fila */
+.modal.todo-modal .todo-row.is-new {
+  animation: todo-row-in 200ms var(--ease-arrive) both;
+}
+
+.modal.todo-modal .todo-row.is-leaving {
+  pointer-events: none;
+  animation: todo-row-out 180ms var(--ease-arrive) both;
+}
+
+/* hecha: primero se llena la casilla y se tacha, luego sale hacia Hechas (a la derecha) */
+.modal.todo-modal .todo-row[data-leave='complete'] {
+  --todo-out: 20px;
+  animation-delay: 180ms;
+}
+
+/* vuelve a por hacer: sale hacia la izquierda */
+.modal.todo-modal .todo-row[data-leave='reopen'] {
+  --todo-out: -20px;
+  animation-delay: 120ms;
+}
+
+.modal.todo-modal .todo-row[data-leave='remove'] {
+  --todo-out: -8px;
+}
+
+/* ---------------------------------------------------------------- hechas por dia */
+
+.modal.todo-modal .todo-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 2px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+.modal.todo-modal .todo-group-title > span {
+  border-radius: 0;
+}
+
+.modal.todo-modal .todo-group-title .todo-group-count {
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.modal.todo-modal .todo-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgb(255 255 255 / 0.06);
+}
+
+/* ---------------------------------------------------------------- avisos (deshacer, error) */
+
+/* flotan sobre el final de la lista: aparecen sin empujar nada */
+.modal.todo-modal .todo-toaster {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  left: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.modal.todo-modal .todo-toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  min-height: 42px;
+  padding: 6px 6px 6px 14px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1f232e;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.1),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+    0 18px 36px -14px rgb(0 0 0 / 0.85);
+  pointer-events: auto;
+  animation: todo-toast-in 200ms var(--ease-arrive) both;
+}
+
+.modal.todo-modal .todo-toast.is-leaving {
+  pointer-events: none;
+  animation: todo-toast-out 160ms var(--ease-arrive) both;
+}
+
+.modal.todo-modal .todo-toast--error {
+  padding-block: 8px;
+  background: #2a1d1f;
+  color: #fbb3a9;
+  box-shadow:
+    0 0 0 1px rgb(249 120 106 / 0.35),
+    0 18px 36px -14px rgb(0 0 0 / 0.85);
+}
+
+.modal.todo-modal .todo-toast-icon {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+.modal.todo-modal .todo-toast--error .todo-toast-icon {
+  color: var(--color-state-error);
+}
+
+.modal.todo-modal .todo-toast-text {
+  min-width: 0;
+  max-width: 320px;
+  overflow: hidden;
+  border-radius: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal.todo-modal .todo-toast-text--wrap {
+  max-width: 460px;
+  white-space: normal;
+  text-wrap: pretty;
+}
+
+.modal.todo-modal .todo-toast-quote {
+  border-radius: 0;
+  color: var(--color-text);
+}
+
+.modal.todo-modal .todo-toast-undo {
+  flex: none;
+}
+
+.modal.todo-modal .todo-toast-kbd {
+  flex: none;
+  min-width: 0;
+  padding: 0 5px;
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+/* cuenta atras de 5 s en el filo de abajo */
+.modal.todo-modal .todo-toast-bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.7;
+  transform-origin: left center;
+  animation-name: todo-toast-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+/* ---------------------------------------------------------------- pie */
+
+.modal.todo-modal .todo-foot {
+  gap: 10px;
+  min-height: 54px;
+  padding: 10px 16px 10px 24px;
+  border-radius: 0;
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.07);
+}
+
+.modal.todo-modal .todo-foot .notes-foot-text {
+  color: var(--color-text-muted);
+}
+
+.modal.todo-modal .todo-confirm {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  border-radius: 0;
+  animation: todo-fade-in 140ms linear both;
+}
+
+.modal.todo-modal .todo-confirm-text {
+  flex: 1;
+  min-width: 160px;
+  border-radius: 0;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+}
+
+.modal.todo-modal .todo-danger {
+  --frame: rgb(249 120 106 / 0.45);
+  background: rgb(249 120 106 / 0.14);
+  color: #fbb3a9;
+}
+
+.modal.todo-modal .todo-danger:hover:not(:disabled) {
+  --frame: rgb(249 120 106 / 0.7);
+  background: rgb(249 120 106 / 0.22);
+  color: #fdd0c9;
+}
+
+/* ---------------------------------------------------------------- angosto */
+
+@media (max-width: 560px) {
+  .modal.todo-modal .todo-top {
+    padding-inline: 16px;
+  }
+
+  .modal.todo-modal .todo-body {
+    padding-inline: 16px;
+  }
+
+  .modal.todo-modal .todo-tabs {
+    width: 100%;
+  }
+
+  .modal.todo-modal .todo-toast-kbd {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- movimiento reducido: solo fundidos */
+
+@media (prefers-reduced-motion: reduce) {
+  .modal.todo-modal .todo-body,
+  .modal.todo-modal .todo-toast,
+  .modal.todo-modal .todo-row.is-new {
+    animation: todo-fade-in 120ms linear both;
+  }
+
+  .modal.todo-modal .todo-toast.is-leaving,
+  .modal.todo-modal .todo-row.is-leaving,
+  .modal.todo-modal .todo-row.is-leaving[data-leave] {
+    animation: todo-fade-out 120ms linear both;
+  }
+
+  .modal.todo-modal .todo-row[data-leave] .todo-check-mark {
+    animation: none;
+  }
+}
+
+@keyframes todo-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes todo-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes todo-row-out {
+  to {
+    opacity: 0;
+    transform: translateX(var(--todo-out, 0)) scale(0.98);
+  }
+}
+
+@keyframes todo-check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes todo-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes todo-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes todo-toast-timer {
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes todo-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes todo-fade-out {
+  to {
+    opacity: 0;
+  }
+}

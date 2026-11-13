@@ -1,0 +1,10 @@
+node_modules/
+dist/
+server/data/
+*.log
+
+# material de trabajo que no es parte de la herramienta
+propuestas/
+web/propuestas/
+.claude/
+skills-lock.json

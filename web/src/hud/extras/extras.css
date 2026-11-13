@@ -1,0 +1,478 @@
+/*
+ * Paneles nuevos: ritmo y topes del presupuesto, tipos de token, herramientas, conciliacion, sesiones, precios,
+ * informe, salud de la lectura, linea de tiempo del agente, archivos y turnos de la sala, vista ligera. Usa el
+ * kit sobrio de insights.css (.ui-*) y los tokens de @theme; aqui solo van columnas y piezas propias.
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* ---- filas: solo las columnas ---- */
+  .x-row-project {
+    grid-template-columns: minmax(0, 1fr) minmax(48px, 160px) 88px 132px;
+  }
+
+  .x-row-month {
+    grid-template-columns: 132px minmax(48px, 1fr) 96px 72px 88px 96px minmax(0, 1.2fr);
+  }
+
+  .x-row-tool {
+    grid-template-columns: minmax(0, 1fr) minmax(48px, 200px) 72px 64px 88px;
+  }
+
+  .x-row-reconcile {
+    grid-template-columns: minmax(0, 1.4fr) 88px 72px 96px 88px;
+  }
+
+  .x-row-session {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr) 56px 64px 100px 96px 80px;
+  }
+
+  .x-row-price {
+    grid-template-columns: minmax(0, 1.2fr) 108px repeat(5, 58px) 84px 128px;
+  }
+
+  .x-row-whatif {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 150px 88px 88px;
+  }
+
+  .x-row-action {
+    grid-template-columns: 52px 16px minmax(0, 1fr) 56px;
+    min-height: 28px;
+    gap: 8px;
+  }
+
+  .x-row-file {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 32px;
+    gap: 8px;
+  }
+
+  .x-row-turn {
+    grid-template-columns: 44px minmax(0, 1fr) 56px 64px;
+    min-height: 30px;
+    gap: 8px;
+  }
+
+  .x-ellipsis {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .x-mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .x-small {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .x-muted {
+    color: var(--color-text-muted);
+  }
+
+  .x-warn {
+    color: var(--color-state-warning);
+  }
+
+  .x-error {
+    color: var(--color-state-error);
+  }
+
+  .x-ok {
+    color: var(--color-state-done);
+  }
+
+  /* ---- barra apilada: en que se va el dinero ---- */
+  .x-stack {
+    display: flex;
+    height: 12px;
+    background: var(--color-panel-sunken);
+    gap: 2px;
+  }
+
+  .x-stack > span {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+    transition: width 300ms var(--ease-change);
+  }
+
+  .x-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px 20px;
+  }
+
+  .x-legend-item {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    column-gap: 8px;
+    align-items: baseline;
+  }
+
+  .x-legend-dot {
+    width: 10px;
+    height: 10px;
+    align-self: center;
+  }
+
+  .x-legend-name {
+    font-size: 13px;
+    color: var(--color-text);
+  }
+
+  .x-legend-val {
+    grid-column: 2;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  /* ---- filtros de una tabla ---- */
+  .x-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .x-filters .ins-input {
+    height: 30px;
+  }
+
+  .x-filters input[type='search'] {
+    flex: 1 1 180px;
+    min-width: 140px;
+  }
+
+  .x-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .x-edit .ins-input {
+    width: 76px;
+    height: 28px;
+    text-align: right;
+  }
+
+  .x-price-input {
+    width: 60px;
+    height: 26px;
+    padding: 0 4px;
+    text-align: right;
+  }
+
+  /*
+   * ---- aviso del presupuesto: arriba al centro, sobre la escena ----
+   * Centrado con left/right + margin auto (no con left:50% + translate, que le dejaba solo media ventana de
+   * ancho): ocupa lo que pide su texto, hasta 720 px. Empieza donde empiezan los paneles (debajo de las barras,
+   * sean una o dos filas).
+   */
+  .x-banner {
+    position: absolute;
+    top: var(--panel-top);
+    left: var(--m);
+    right: var(--m);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    max-width: 720px;
+    margin-inline: auto;
+    padding: 10px 14px;
+    pointer-events: auto;
+    background: var(--color-panel-glass);
+    border: var(--border-width) solid var(--color-state-warning);
+    color: var(--color-text);
+    font-size: 13px;
+  }
+
+  .x-banner.is-over {
+    border-color: var(--color-state-error);
+  }
+
+  .x-banner > svg {
+    flex: none;
+  }
+
+  /* en la oficina 3D la lista de salas (o su riel) ocupa la izquierda: el aviso se centra en el resto */
+  .hud-rooms ~ .x-banner {
+    left: calc(var(--m) + var(--rooms-w) + var(--gap));
+  }
+
+  .hud-rooms--rail ~ .x-banner {
+    left: calc(var(--m) + var(--rail-w) + var(--gap));
+  }
+
+  /* con el panel de un agente o de una sala abierto, el aviso se centra en lo que queda libre a su izquierda */
+  .hud-drawer:not(.is-leaving) ~ .x-banner {
+    right: calc(var(--m) + var(--drawer-w) + var(--gap));
+  }
+
+  /* angosto: el panel ocupa todo el ancho y el aviso queda debajo de el; los botones bajan bajo el texto */
+  @media (max-width: 767px) {
+    .hud-drawer:not(.is-leaving) ~ .x-banner {
+      right: var(--m);
+      z-index: 17;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .x-banner {
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
+
+    .x-banner-text {
+      flex: 1 1 200px;
+    }
+
+    .x-banner-actions {
+      margin-left: auto;
+    }
+  }
+
+  .x-banner-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .x-banner-text b {
+    font-weight: 700;
+  }
+
+  .x-banner-actions {
+    display: flex;
+    flex: none;
+    gap: 6px;
+  }
+
+  /* ---- chips de la barra superior ---- */
+  .x-pace {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .x-pace b {
+    font-weight: 700;
+    color: var(--color-text-secondary);
+  }
+
+  /* la señal va en el "cuando"; la cifra por hora sigue neutra */
+  .x-pace.is-warn .x-pace-when {
+    color: var(--color-state-warning);
+  }
+
+  /* tope ya pasado: la alerta fuerte la da el segmento del mes; aqui queda un rojo apagado, sin negrita */
+  .x-pace.is-over .x-pace-when {
+    font-weight: 400;
+    color: color-mix(in srgb, var(--color-state-error) 72%, var(--color-text-muted));
+  }
+
+  /* ---- arbol de "Agentes ahora" ---- */
+  .x-tree-indent {
+    display: inline-block;
+    flex: none;
+    width: calc(var(--depth, 0) * 18px);
+  }
+
+  .x-tree-branch {
+    flex: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  /* segunda linea de una celda numerica: el ritmo o el total de la rama */
+  .x-sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .x-quiet {
+    color: var(--color-state-warning);
+  }
+
+  /* ---- paneles laterales (agente y sala) ---- */
+  .x-kv {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  .x-kv > dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    text-align: right;
+    color: var(--color-text);
+  }
+
+  .x-kv > dt {
+    min-width: 0;
+  }
+
+  .x-scroll {
+    max-height: 260px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .x-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .x-dot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    background: var(--color-state-done);
+  }
+
+  .x-dot.is-error {
+    background: var(--color-state-error);
+  }
+
+  .x-dot.is-open {
+    background: var(--color-state-working);
+  }
+
+  .x-dot.is-denied {
+    background: var(--color-state-warning);
+  }
+
+  /* ---- pendientes: una linea para escribir y Enter ---- */
+  .x-todo-add {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .x-todo-input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    height: 40px;
+    resize: none;
+  }
+
+  /* ---- informe ---- */
+  .x-report {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    background: var(--color-panel-sunken);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  /* ---- interruptores ---- */
+  .x-switch {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .x-switch-name {
+    font-size: 13px;
+    color: var(--color-text);
+  }
+
+  .x-switch-hint {
+    grid-column: 1;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  /* el texto del estado ocupa siempre lo mismo: los interruptores de las filas quedan en la misma columna */
+  .x-switch .switch-text {
+    min-width: 11ch;
+  }
+
+  .x-switch > .btn {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    min-width: 92px;
+    justify-content: center;
+  }
+
+  /* ---- vista ligera (?lite=1): sin escena 3D ---- */
+  .x-lite {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 76px 24px 32px;
+    background: var(--color-bg);
+    pointer-events: auto;
+  }
+
+  .x-lite-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .x-row-lite-room {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr) 72px 88px 96px;
+  }
+
+  .x-row-lite-agent {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.6fr) 64px 72px 80px;
+  }
+
+  @media (max-width: 900px) {
+    .x-row-month > :nth-child(5),
+    .x-row-month > :nth-child(7),
+    .x-row-session > :nth-child(3),
+    .x-row-session > :nth-child(4),
+    .x-row-price > :nth-child(5),
+    .x-row-price > :nth-child(6),
+    .x-row-lite-agent > :nth-child(2) {
+      display: none;
+    }
+
+    .x-row-month {
+      grid-template-columns: 124px minmax(48px, 1fr) 88px 60px 88px;
+    }
+
+    .x-row-session {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) 88px 64px 80px;
+    }
+
+    .x-row-price {
+      grid-template-columns: minmax(0, 1.2fr) 100px repeat(3, 56px) 80px 124px;
+    }
+
+    .x-row-lite-agent {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) 64px 72px 80px;
+    }
+  }
+}

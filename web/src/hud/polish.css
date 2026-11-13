@@ -1,0 +1,313 @@
+/*
+ * Segunda capa de la piel "Loft cinematografico" (va despues de skin.css, tambien sin @layer):
+ * 1. redondea todo lo que vive dentro de un panel, para que no quede ni una pieza con esquina de pixel;
+ * 2. hace que la barra de arriba quepa en cualquier ancho (antes las dos mitades se montaban);
+ * 3. redisena la vista ligera, la de flujos y la de pendientes;
+ * 4. viste las etiquetas flotantes de la escena (nombres de agentes y rotulos de sala).
+ */
+
+/* ---------------------------------------------------------------- 1. nada cuadrado dentro de un panel */
+
+:is(.hud-drawer, .modal, .fx-sheet, .fx-dockbar, .hud-rooms, .x-lite, .ob-card, .hud-bar, .center-card)
+  :is(div, section, article, li, button, a, span, kbd, summary, input, textarea, select, label, p, time, output)[class] {
+  border-radius: 8px;
+}
+
+/*
+ * franjas que van de borde a borde: sin esquinas propias. El [class] la deja por encima de la regla de arriba
+ * (si no, ganaba esa y los separadores, que son sombras interiores, se curvaban en las puntas). Entran tambien
+ * las secciones del panel lateral y las filas de tabla, que se separan con una linea de 1 px.
+ */
+:is(.hud-drawer, .modal, .fx-sheet, .fx-dockbar, .hud-rooms, .ob-card, .hud-bar, .x-lite)
+  :is(.win-head, .modal-head, .modal-body, .modal-foot, .notes-foot, .notes-body, .bar-seg, .fx-head, .fx-foot, .fx-body, .rooms-list, .drawer-body, .drawer-foot, .drawer-head, .drawer-sec, .tok-total, .ui-row)[class] {
+  border-radius: 0;
+}
+
+input,
+textarea,
+select {
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------------------- 2. la barra de arriba siempre cabe */
+
+/*
+ * Escalones de recorte de la franja (los escribe useFitLevel midiendo lo que lleva, no el ancho de la ventana).
+ * Sin atributo (antes de la primera medida) va todo, como el escalon 0.
+ * data-panels: 1 sin teclas · 2 sin textos (queda icono e insignia; el nombre sigue en aria-label y title)
+ * data-view:   1 sin textos (iconos con su title) · 2 ademas sin el texto de la conexion ("En vivo", "Sin conexión":
+ *              queda el LED o el icono; el lector lo sigue leyendo)
+ * data-money:  1 sin tokens de hoy · 2 sin proyeccion, salvo la que avisa (la que dice que el mes va a pasar el
+ *              tope; si ya lo paso, el aviso es el gasto) · 3 sin ritmo · 4 sin barrita (y, si fallo el costo,
+ *              sin el texto del aviso: queda el icono y Reintentar)
+ */
+.hud-top:is([data-panels='1'], [data-panels='2']) .kbd,
+.hud-top[data-panels='2'] .hud-bar--panels .btn-label,
+.hud-top:is([data-view='1'], [data-view='2']) .hud-bar--view :is(.btn-label, .quality-opt-label),
+.hud-top:is([data-money='1'], [data-money='2'], [data-money='3'], [data-money='4']) .today-tok,
+.hud-top:is([data-money='2'], [data-money='3']) :is(.budget-mini-forecast:not(.is-over), .lv-month-over .budget-mini-forecast),
+.hud-top:is([data-money='3'], [data-money='4']) .x-pace-seg,
+.hud-top[data-money='4'] :is(.budget-mini, .budget-mini-forecast) {
+  display: none;
+}
+
+/* lo que se esconde a la vista pero el lector de pantalla sigue leyendo (el aviso de costo es role=alert) */
+.hud-top[data-view='2'] .conn-text,
+.hud-top[data-money='4'] .bar-seg-error-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hud-bar .bar-seg {
+  padding: 0 10px;
+}
+
+/* ---------------------------------------------------------------- 3a. vista ligera */
+
+/* vive en hud/extras/lite.css (clases lite-): monitor de presupuesto, agentes y salas */
+
+/* ---------------------------------------------------------------- 3b. flujos */
+
+.fx-sheet {
+  border-radius: 20px;
+}
+
+.fx-dockbar {
+  border-radius: 16px;
+  padding-inline: 6px;
+}
+
+.fx-sheet h2,
+.fx-sheet h3,
+.fx-sheet [class*='title'] {
+  font-family: var(--font-display);
+  letter-spacing: -0.005em;
+}
+
+/* ---------------------------------------------------------------- 3c. pendientes y notas */
+
+.x-todo-add {
+  gap: 10px;
+}
+
+.notes-input,
+.x-todo-input {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.3);
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: box-shadow var(--duration-hover) var(--ease-arrive);
+}
+
+.notes-input:focus,
+.x-todo-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--color-accent), 0 0 0 4px rgb(232 176 74 / 0.16);
+}
+
+.notes-list > li {
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.035);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.notes-list > li + li {
+  margin-top: 8px;
+}
+
+.notes-empty {
+  padding: 22px 16px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgb(0 0 0 / 0.2);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.notes-head-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgb(232 176 74 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(232 176 74 / 0.3);
+}
+
+/* ---------------------------------------------------------------- 4. etiquetas de la escena */
+
+[data-office-scene] .ofc-card {
+  border-radius: 10px !important;
+  background: rgb(17 19 26 / 0.94) !important;
+  box-shadow: 0 0 0 1px var(--frame), 0 10px 22px -10px rgb(0 0 0 / 0.75) !important;
+  overflow: hidden;
+}
+
+[data-office-scene] .ofc-pin.is-selected .ofc-card {
+  box-shadow: 0 0 0 1.5px var(--color-accent), 0 0 0 5px rgb(232 176 74 / 0.2), 0 12px 26px -10px rgb(0 0 0 / 0.8) !important;
+}
+
+[data-office-scene] .ofc-name {
+  font-family: var(--font-display) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 14px !important;
+  letter-spacing: 0.1em !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+[data-office-scene] .ofc-timer {
+  font-size: 12px !important;
+}
+
+[data-office-scene] .ofc-head {
+  box-shadow: inset 0 -1px 0 0 rgb(255 255 255 / 0.07);
+}
+
+[data-office-scene] .ofc-swatch,
+[data-office-scene] .ofc-st,
+[data-office-scene] .ofc-led,
+[data-office-scene] .ofc-foot,
+[data-office-scene] .ofc-model::before {
+  border-radius: 50%;
+}
+
+[data-office-scene] .ofc-line {
+  width: 1px;
+  opacity: 0.5;
+}
+
+[data-office-scene] .ofc-model,
+[data-office-scene] .ofc-badge,
+[data-office-scene] .ofc-plaque-num {
+  border-radius: 4px;
+}
+
+[data-office-scene] .ofc-plaque {
+  height: 24px;
+  padding: 0 10px 0 8px;
+  border-radius: 999px;
+  background: rgb(17 19 26 / 0.92);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  box-shadow: 0 0 0 1px var(--frame), 0 8px 18px -8px rgb(0 0 0 / 0.7) !important;
+}
+
+[data-office-scene] .ofc-plaque.is-selected {
+  box-shadow: 0 0 0 1.5px var(--frame), 0 0 0 5px color-mix(in srgb, var(--frame) 22%, transparent), 0 8px 18px -8px rgb(0 0 0 / 0.7) !important;
+}
+
+[data-office-scene] .ofc-loader,
+[data-office-scene] .ofc-fallback {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 20px 40px -14px rgb(0 0 0 / 0.75);
+}
+
+[data-office-scene] .ofc-loader i {
+  border-radius: 50%;
+}
+
+[data-office-scene] .ofc-fallback strong {
+  font-size: 14px;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* aviso de presupuesto: tarjeta de vidrio; el borde conserva el tono del aviso */
+.x-banner {
+  border-radius: 14px;
+  box-shadow: 0 18px 40px -16px rgb(0 0 0 / 0.8);
+}
+
+/* ---------------------------------------------------------------- 5. lectura de rendimiento (?perf=1) */
+
+.perf-badge {
+  position: fixed;
+  left: 16px;
+  bottom: 64px;
+  z-index: 60;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgb(10 11 16 / 0.92);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+  color: var(--color-text-secondary);
+  font: 11px/1.55 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.perf-badge b {
+  color: var(--color-accent);
+  font-size: 13px;
+}
+
+/* ---------------------------------------------------------------- 6. movimiento fluido */
+
+/*
+ * Del estilo pixel quedaban animaciones "a saltos" (steps): parpadeos en dos tiempos, giros en ocho pasos,
+ * barras que avanzan a golpes. En el estilo nuevo se leen como tirones. Aqui pasan a curvas suaves, y las
+ * entradas de paneles pierden el retraso inicial: responden en el mismo cuadro del clic.
+ */
+.led--blink {
+  animation: led-blink 900ms ease-in-out infinite alternate;
+}
+
+.lv-habits.is-alert > svg,
+.room-sig--alert.is-critical > svg,
+.rail-tile.is-critical .rail-alert,
+.lv-alert.is-critical,
+.thinking-dots > span,
+.hive-cell,
+.rf-story.is-waiting .rf-story-icon,
+.bee-fly,
+.bee-shadow,
+.loader::after {
+  animation-timing-function: ease-in-out;
+}
+
+.is-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+.skel,
+.rf-seg.is-running {
+  animation-timing-function: linear;
+}
+
+.rd-num {
+  animation: rd-stamp 200ms var(--ease-arrive) both;
+}
+
+.hud-drawer:not(.is-leaving) {
+  animation: drawer-in 220ms var(--ease-arrive) both;
+}
+
+.modal:not(.is-leaving) {
+  animation: modal-in 200ms var(--ease-arrive) both;
+}
+
+.action-row.is-new {
+  animation-delay: 0ms;
+}
+
+/* lo que entra o sale se anima en su propia capa: no repinta lo de alrededor */
+.hud-drawer,
+.modal,
+.fx-sheet {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .led--blink,
+  .is-spin,
+  .rd-num {
+    animation: none;
+  }
+}
